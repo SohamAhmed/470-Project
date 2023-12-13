@@ -1,0 +1,78 @@
+from OpenGL.GL import *
+from OpenGL.GLUT import *
+from OpenGL.GLU import *
+import math
+def init():
+    glClearColor(0.0, 0.0, 0.0, 0.0)
+    gluOrtho2D(-1.0, 1.0, -1.0, 1.0)
+def draw_arrow(x, y, angle):
+    glColor3f(1.0, 1.0, 1.0)
+    glLineWidth(3.0)
+    glBegin(GL_LINES)
+    glVertex2f(x, y)
+    glVertex2f(x + 0.2 * math.sin(angle), y + 0.2 * math.cos(angle))
+    glEnd()
+
+    glPointSize(5.0)
+    glBegin(GL_POINTS)
+    glVertex2f(x, y)
+    glEnd()
+def draw_bullseye():
+    glColor3f(1.0, 1.0, 1.0)
+    glLineWidth(3.0)
+    glBegin(GL_LINE_LOOP)
+    for i in range(10):
+        angle = 2 * math.pi * i / 10
+        x = 0.4 * math.sin(angle)
+        y = 0.4 * math.cos(angle)
+        glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINE_LOOP)
+    for i in range(10):
+        angle = 2 * math.pi * i / 10
+        x = 0.2 * math.sin(angle)
+        y = 0.2 * math.cos(angle)
+        glVertex2f(x, y)
+    glEnd()
+
+    glBegin(GL_LINE_LOOP)
+    for i in range(10):
+        angle = 2 * math.pi * i / 10
+        x = 0.1 * math.sin(angle)
+        y = 0.1 * math.cos(angle)
+        glVertex2f(x, y)
+    glEnd()
+arrow_position = -0.9
+arrow_angle = math.pi / 6
+arrow_speed = 0.001
+
+def display():
+    global arrow_position, arrow_angle
+    glClear(GL_COLOR_BUFFER_BIT)
+
+    # Draw the bullseye board
+    draw_bullseye()
+
+    # Draw the arrow
+    draw_arrow(arrow_position, 0.0, arrow_angle)
+
+    # Update arrow position and angle
+    arrow_position += arrow_speed
+    if arrow_position > 0.9:
+        arrow_position = -0.9
+        arrow_angle = math.pi / 6
+
+    arrow_angle += 0.02
+
+    # Swap buffers
+    glutSwapBuffers()
+if __name__ == '__main__':
+    glutInit()
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
+    glutInitWindowSize(500, 500)
+    glutCreateWindow(b"Shooting an Arrow to a Bullseye Board")
+    glutDisplayFunc(display)
+    init()
+    glutIdleFunc(lambda: glutPostRedisplay())
+    glutMainLoop()

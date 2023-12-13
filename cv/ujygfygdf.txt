@@ -1,0 +1,70 @@
+!pip install PyOpenGL
+!pip install PyOpenGL-accelerate
+
+import numpy as np
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
+# Define the size of the window
+window_width = 800
+window_height = 800
+
+# Define the coordinates of the bullseye board
+bullseye_x = [0, 0, 0, 0, 0]
+bullseye_y = [0, 0, 0, 0, 0]
+bullseye_colors = [(1.0, 1.0, 1.0), (0.0, 0.0, 0.0), (1.0, 1.0, 1.0), (0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+bullseye_sizes = [250, 200, 150, 100, 50]
+
+# Define the coordinates of the arrow
+arrow_x = 0
+arrow_y = -300
+arrow_head_x = [arrow_x, arrow_x - 10, arrow_x, arrow_x - 10, arrow_x]
+arrow_head_y = [arrow_y + 10, arrow_y, arrow_y - 10, arrow_y, arrow_y + 10]
+arrow_body_x = [arrow_x, 0]
+arrow_body_y = [arrow_y, 0]
+
+# Define the mouse click function
+def mouse_click(button, state, x, y):
+    global arrow_x, arrow_y
+    if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
+        # Map the mouse position to the window coordinates
+        window_y = window_height - y
+        # Map the window coordinates to the world coordinates
+        arrow_x = ((x / window_width) * 2 - 1) * 400
+        arrow_y = ((window_y / window_height) * 2 - 1) * 400
+        # Redraw the scene
+        glutPostRedisplay()
+
+# Define the display function
+def display():
+    glClear(GL_COLOR_BUFFER_BIT)
+    # Draw the bullseye board using glPoints
+    glPointSize(10)
+    glBegin(GL_POINTS)
+    for i in range(len(bullseye_x)):
+        glColor3f(bullseye_colors[i][0], bullseye_colors[i][1], bullseye_colors[i][2])
+        for j in range(360):
+            x = bullseye_x[i] + bullseye_sizes[i] * np.cos(j * np.pi / 180)
+            y = bullseye_y[i] + bullseye_sizes[i] * np.sin(j * np.pi / 180)
+            glVertex2f(x, y)
+    glEnd()
+    # Draw the arrow using glPoints
+    glPointSize(5)
+    glColor3f(1.0, 0.0, 0.0)
+    glBegin(GL_POINTS)
+    for i in range(len(arrow_head_x)):
+        glVertex2f(arrow_head_x[i], arrow_head_y[i])
+    for i in range(len(arrow_body_x)):
+        glVertex2f(arrow_body_x[i], arrow_body_y[i])
+    glEnd()
+    # Swap the buffers
+    glutSwapBuffers()
+
+# Initialize the window
+glutInit()
+glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
+glutInitWindowSize(window_width, window_height)
+glutCreateWindow("Arrow shooting at a bullseye board")
+# Set the display function
+glutDisplayFunc(display)
